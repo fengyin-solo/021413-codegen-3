@@ -36,6 +36,7 @@ defineExpose({ getView: () => editorView })
 <style lang="scss" scoped>
 .editor-pane {
   flex: 1;
+  min-width: 0;
   overflow: hidden;
   background: $bg-editor;
 }

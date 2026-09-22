@@ -5,6 +5,13 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
         <span class="toolbar__name">Mira</span>
       </div>
+      <button
+        class="toolbar__btn"
+        :class="{ 'toolbar__btn--active': store.outlineOpen }"
+        title="标题目录"
+        @click="emit('action', 'toggle-outline')"
+        v-html="outlineIcon"
+      />
       <span v-if="store.isDirty" class="toolbar__dot" />
     </div>
 
@@ -35,6 +42,9 @@ const emit = defineEmits(['action'])
 
 const I = (d, size = 16) =>
   `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`
+
+// 目录图标：三条渐进缩进的横线，象征大纲层级
+const outlineIcon = I('<line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="12" y1="18" x2="20" y2="18"/>')
 
 const actionGroups = [
   [
@@ -134,6 +144,11 @@ const actionGroups = [
     }
     &:active {
       transform: scale(0.93);
+    }
+
+    &--active {
+      background: $accent-soft;
+      color: $accent;
     }
   }
 

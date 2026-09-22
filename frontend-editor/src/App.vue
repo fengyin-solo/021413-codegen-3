@@ -1,7 +1,14 @@
 <template>
   <div class="app">
     <Toolbar @action="handleToolbarAction" />
-    <EditorPane ref="editorPane" @ready="onEditorReady" />
+    <div class="app__body">
+      <OutlinePanel
+        v-if="store.outlineOpen"
+        @navigate="navigateToPos"
+        @close="store.toggleOutline()"
+      />
+      <EditorPane ref="editorPane" @ready="onEditorReady" />
+    </div>
     <StatusBar />
     <Transition name="toast">
       <div v-if="toast.visible" :class="['toast', `toast--${toast.type}`]">
@@ -13,10 +20,14 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
+import { EditorView } from '@codemirror/view'
 import Toolbar from '@/components/Toolbar.vue'
 import EditorPane from '@/components/EditorPane.vue'
+import OutlinePanel from '@/components/OutlinePanel.vue'
 import StatusBar from '@/components/StatusBar.vue'
+import { useEditorStore } from '@/stores/editor'
 
+const store = useEditorStore()
 const editorPane = ref(null)
 let editorView = null
 
@@ -30,6 +41,16 @@ function showToast(msg, type = 'info') {
 }
 
 function onEditorReady(view) { editorView = view }
+
+// 目录点击定位：光标移到标题行首并滚动到可视区域顶部
+function navigateToPos(pos) {
+  if (!editorView) return
+  editorView.dispatch({
+    selection: { anchor: pos },
+    effects: EditorView.scrollIntoView(pos, { y: 'start', yMargin: 24 })
+  })
+  editorView.focus()
+}
 
 function insertText(before, after = '') {
   if (!editorView) return
@@ -52,6 +73,7 @@ function insertLine(prefix) {
 
 function handleToolbarAction(action) {
   const map = {
+    'toggle-outline': () => store.toggleOutline(),
     bold: () => insertText('**', '**'),
     italic: () => insertText('*', '*'),
     strikethrough: () => insertText('~~', '~~'),
@@ -79,6 +101,13 @@ function handleToolbarAction(action) {
   flex-direction: column;
   height: 100vh;
   background: $bg;
+
+  // 目录面板与编辑区横向并列：面板推开而非遮挡编辑区
+  &__body {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+  }
 }
 
 .toast {
