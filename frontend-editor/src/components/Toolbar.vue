@@ -1,6 +1,14 @@
 <template>
   <header class="toolbar">
     <div class="toolbar__left">
+      <button
+        class="toolbar__btn toolbar__toc-toggle"
+        :class="{ 'toolbar__toc-toggle--on': !toc.panelCollapsed }"
+        :title="toc.panelCollapsed ? '显示目录' : '隐藏目录'"
+        @click="toc.togglePanel()"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      </button>
       <div class="toolbar__brand">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
         <span class="toolbar__name">Mira</span>
@@ -29,8 +37,10 @@
 
 <script setup>
 import { useEditorStore } from '@/stores/editor'
+import { useTocStore } from '@/stores/toc'
 
 const store = useEditorStore()
+const toc = useTocStore()
 const emit = defineEmits(['action'])
 
 const I = (d, size = 16) =>
@@ -74,6 +84,13 @@ const actionGroups = [
     align-items: center;
     gap: $sp-2;
     min-width: 140px;
+  }
+
+  &__toc-toggle {
+    &--on {
+      background: $accent-soft;
+      color: $accent;
+    }
   }
 
   &__brand {

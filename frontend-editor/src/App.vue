@@ -1,7 +1,10 @@
 <template>
   <div class="app">
     <Toolbar @action="handleToolbarAction" />
-    <EditorPane ref="editorPane" @ready="onEditorReady" />
+    <div class="app__main">
+      <TocPanel @navigate="onTocNavigate" />
+      <EditorPane ref="editorPane" @ready="onEditorReady" />
+    </div>
     <StatusBar />
     <Transition name="toast">
       <div v-if="toast.visible" :class="['toast', `toast--${toast.type}`]">
@@ -13,8 +16,10 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
+import { EditorView } from '@codemirror/view'
 import Toolbar from '@/components/Toolbar.vue'
 import EditorPane from '@/components/EditorPane.vue'
+import TocPanel from '@/components/TocPanel.vue'
 import StatusBar from '@/components/StatusBar.vue'
 
 const editorPane = ref(null)
@@ -30,6 +35,17 @@ function showToast(msg, type = 'info') {
 }
 
 function onEditorReady(view) { editorView = view }
+
+// Jump to a heading: place the cursor at the line start and center it in the viewport
+function onTocNavigate(item) {
+  if (!editorView) return
+  const line = editorView.state.doc.line(Math.min(item.line, editorView.state.doc.lines))
+  editorView.dispatch({
+    selection: { anchor: line.from },
+    effects: EditorView.scrollIntoView(line.from, { y: 'center' })
+  })
+  editorView.focus()
+}
 
 function insertText(before, after = '') {
   if (!editorView) return
@@ -79,6 +95,12 @@ function handleToolbarAction(action) {
   flex-direction: column;
   height: 100vh;
   background: $bg;
+
+  &__main {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+  }
 }
 
 .toast {
